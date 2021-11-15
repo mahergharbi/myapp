@@ -4,26 +4,45 @@ pipeline {
 
 
     stages {
-       stage ('GIT') {
-               steps{
-                 script{
-                     checkout([$class: 'GitSCM', branches: [[name: '*/main']],userRemoteConfigs: [[ credentialsId: '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',url :'https://github.com/mahergharbi/myapp']]])                 
-                 }
-
-		}
+       stage('Pull') {
+             steps{
+                script{
+                    checkout([$class: 'GitSCM', branches: [[name: '*/master']],
+                        userRemoteConfigs: [[
+                            url: 'https://github.com/mahergharbi/myapp']]])
+                }
+            }
+        }
+      stage('Install') {
+             steps{
+                script{
+                    sh "sudo npm install"
+                }
+            }
         }
         stage ('Build') {
                steps{
                  script{
-                    sh "ansible-playbook ansible/build.yml -i ansible/inventory/host.yml -u root --private-key=/var/lib/jenkins/.ssh/id_rsa"
+                    sh "ansible-playbook ansible/build.yml -i ansible/inventory/host.yml"
                  }
                }
 
         }
-        
+       
         stage ('Dokcer build') {
                steps{
                  script{
-                    sh "ansible-playbook ansible/docker.yml -i ansible/inventory/host.yml -u root --private-key=/var/lib/jenkins/.ssh/id_rsa"
+                    sh "ansible-playbook ansible/docker.yml -i ansible/inventory/host.yml"
                  }
                }
+
+        }
+
+
+   }
+post {
+        always {
+            cleanWs()
+        }
+    }
+}
