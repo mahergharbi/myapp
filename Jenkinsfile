@@ -1,53 +1,29 @@
 pipeline {
-  agent any
+
+    agent any
+
+
     stages {
-        stage('Pull') {
-             steps{
-                script{
-                    checkout([$class: 'GitSCM', branches: [[name: '*/master']],
-                        userRemoteConfigs: [[credentialsId: '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',
-                            url: 'https://github.com/mahergharbi/myapp']]])
-                }
-            }
-        }
-
-
- stage('Install') {
-             steps{
-                script{
-                    sh "sudo npm install"
-                }
-            }
-        }
-
-	stage ('Build') {
-	
-			steps {
-			
-			sh "ansible-playbook Ansible/build.yml -i Ansible/inventory/host.yml"
-	
-			}
-	}
-
-
-    stage('Docker') {
+       stage ('GIT') {
                steps{
-                script{
-                    sh "sudo ansible-playbook Ansible/docker.yml -i Ansible/inventory/host.yml"
-                }
-            }
+                 script{
+                     checkout([$class: 'GitSCM', branches: [[name: '*/main']],userRemoteConfigs: [[ credentialsId: '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',url :'https://github.com/hanenemho/MyApp.git']]])                 
+                 }
+
+		}
         }
+        stage ('Build') {
+               steps{
+                 script{
+                    sh "ansible-playbook ansible/build.yml -i ansible/inventory/host.yml -u root --private-key=/var/lib/jenkins/.ssh/id_rsa"
+                 }
+               }
 
-
-stage('docker_registry') {
-    steps{
-    script {
-        sh "ansible-playbook Ansible/docker-registry.yml -i Ansible/inventory/host.yml "
-          }
-       }
-    }
-
-
-
-      }
-}
+        }
+        
+        stage ('Dokcer build') {
+               steps{
+                 script{
+                    sh "ansible-playbook ansible/docker.yml -i ansible/inventory/host.yml -u root --private-key=/var/lib/jenkins/.ssh/id_rsa"
+                 }
+               }
