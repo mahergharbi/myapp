@@ -7,7 +7,7 @@ pipeline {
        stage ('GIT') {
                steps{
                  script{
-                     checkout([$class: 'GIT CONNECT', branches: [[name: '*/master']],userRemoteConfigs: [[ credentialsId: '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',url :'https://github.com/mahergharbi/myapp']]])                 
+                     checkout([$class: 'GIT CONNECT', branches: [[name: '*/master']],userRemoteConfigs: [[ credentialsId: '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',url :'https://github.com/mahergharbi/myapp']]])                 
                  }
 
 		}
